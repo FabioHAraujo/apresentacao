@@ -23,7 +23,6 @@ import {
   Trash2,
   Edit,
 } from 'lucide-react';
-import Registro from '@/components/personal/Registro/page';
 
 // Lista de opções de redes sociais e links personalizados
 const socialOptions = [
@@ -229,7 +228,6 @@ export default function Home() {
           </form>
         </CardContent>
       </Card>
-      <Registro />
     </div>
   );
 }
