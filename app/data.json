@@ -1,0 +1,23 @@
+[
+    {
+      "name": "Rafael Frohlich",
+      "username": "rafael-frohlich",
+      "bio": "Gerente do Adm | Financeiro | Contábil | RH | Pitis do Gabriel",
+      "avatarUrl": "https://media.licdn.com/dms/image/v2/D4D03AQG_q7EJwTV1vQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1723477875236?e=1734566400&v=beta&t=u3ifgwxTtcw_Pooo23F8ifn5NovD7pLXMY_6OomtRY8",
+      "links": [
+        { "title": "LinkedIn", "url": "https://www.linkedin.com/in/rafael-frohlich-41a34a16b", "icon": "Linkedin" },
+        { "title": "Instagram", "url": "https://instagram.com/rafael-frohlich", "icon": "Instagram" }
+      ]
+    },
+    {
+      "name": "Fábio Henrique Araújo",
+      "username": "fabio-araujo",
+      "bio": "Analista de Sistemas Jr. | Desenvolvedor",
+      "avatarUrl": "https://www.w3schools.com/howto/img_avatar.png",
+      "links": [
+        { "title": "LinkedIn", "url": "https://www.linkedin.com/in/fabioharaujo", "icon": "Linkedin" },
+        { "title": "Instagram", "url": "https://www.instagram.com/fabiohre/", "icon": "Instagram" }
+      ]
+    }
+  ]
+  
