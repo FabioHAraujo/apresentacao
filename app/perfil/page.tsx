@@ -7,22 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import PocketBase from 'pocketbase';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Upload } from 'lucide-react';
 import Image from 'next/image';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Github, Twitter, Linkedin, Instagram, Mail, Link } from "lucide-react";
 
 // Lista de opções de redes sociais e links personalizados
 const socialOptions = [
-  { value: 'github', label: 'GitHub', icon: Github },
-  { value: 'twitter', label: 'Twitter', icon: Twitter },
-  { value: 'linkedin', label: 'LinkedIn', icon: Linkedin },
-  { value: 'instagram', label: 'Instagram', icon: Instagram },
-  { value: 'email', label: 'Email', icon: Mail },
-  { value: 'custom', label: 'Link Personalizado', icon: Link },
+  { value: 'github', label: 'GitHub' },
+  { value: 'twitter', label: 'Twitter' },
+  { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'email', label: 'Email' },
+  { value: 'custom', label: 'Link Personalizado' },
 ];
 
-export default function EditarPerfil({ user }) {
+export default function perfil({ user }) {
   const [profile, setProfile] = useState({
     name: user.name || '',
     username: user.username || '',
@@ -30,14 +28,7 @@ export default function EditarPerfil({ user }) {
     avatarUrl: '',
   });
 
-  const [links, setLinks] = useState(() => {
-    try {
-      return user.links && user.links !== '' ? JSON.parse(user.links) : [];
-    } catch (error) {
-      console.error('Erro ao fazer parse dos links:', error);
-      return [];
-    }
-  });
+  const [links, setLinks] = useState(user.links ? JSON.parse(user.links) : []);
   const [currentLink, setCurrentLink] = useState({ type: '', title: '', url: '' });
   const fileInputRef = useRef(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -98,21 +89,11 @@ export default function EditarPerfil({ user }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Checa se os valores foram modificados antes de enviar
-    const updatedData: any = {};
-    if (profile.name !== user.name) updatedData.name = profile.name;
-    if (profile.username !== user.username) updatedData.username = profile.username;
-    if (profile.bio !== user.bio) updatedData.bio = profile.bio;
-    if (links.length > 0 && JSON.stringify(links) !== user.links) {
-      updatedData.links = JSON.stringify(links);
-    }
-    if (profileImage) updatedData.avatar = profileImage;
-
-    // Se não houver alterações, não envia nada
-    if (Object.keys(updatedData).length === 0) {
-      alert('Nenhuma alteração foi feita.');
-      return;
-    }
+    const updatedData = {
+      ...profile,
+      links: JSON.stringify(links),
+      avatar: profileImage, // Salvar o avatar atualizado
+    };
 
     try {
       await pb.collection('users').update(user.id, updatedData);
@@ -172,65 +153,26 @@ export default function EditarPerfil({ user }) {
               </div>
             </div>
 
-            {/* Adição de Links */}
             <div className="my-4">
-              <h3 className="text-lg font-semibold">Adicionar Links</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="linkType">Tipo de Link</Label>
-                  <Select value={currentLink.type} onValueChange={handleLinkTypeChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {socialOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <div className="flex items-center">
-                            <option.icon className="mr-2 h-4 w-4" />
-                            {option.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="linkTitle">Título do Link</Label>
-                  <Input id="linkTitle" name="title" value={currentLink.title} onChange={handleLinkChange} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="linkUrl">URL do Link</Label>
-                <Input id="linkUrl" name="url" value={currentLink.url} onChange={handleLinkChange} />
-              </div>
-              <Button type="button" onClick={addLink}>Adicionar Link</Button>
-            </div>
-
-            <div className="my-4">
-              <h3 className="text-lg font-semibold">Links Adicionados</h3>
-              {links.map((link, index) => {
-                const Icon = socialOptions.find((option) => option.value === link.type)?.icon;
-
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between bg-gray-100 p-2 rounded"
-                  >
-                    <div className="flex items-center space-x-2">
-                      {Icon && <Icon className="h-4 w-4" />}
-                      <span>{link.title}</span>
-                    </div>
-                    <div>
-                      <Button variant="ghost" size="sm" onClick={() => editLink(index)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => removeLink(index)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              <h3 className="text-lg font-semibold">Links</h3>
+              {links.map((link, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-gray-100 p-2 rounded my-2"
+                >
+                  <div className="flex items-center">
+                    <span>{link.title}</span>
                   </div>
-                );
-              })}
+                  <div>
+                    <Button variant="ghost" size="sm" onClick={() => editLink(index)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => removeLink(index)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <Button type="submit">Salvar Perfil</Button>
