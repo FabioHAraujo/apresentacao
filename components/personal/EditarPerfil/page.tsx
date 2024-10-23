@@ -12,6 +12,30 @@ import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Github, Twitter, Linkedin, Instagram, Mail, Link } from 'lucide-react';
 
+
+interface Link {
+  type: string;
+  title: string;
+  url: string;
+}
+
+interface UpdatedData {
+  name?: string;
+  username?: string;
+  bio?: string;
+  links?: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  username: string;
+  bio: string;
+  avatar?: string;  // Tornar opcional para usuários que podem não ter avatar
+  avatarUrl?: string; // Tornar opcional para usuários que podem não ter avatarUrl
+  links: Link[]; // Array de links associados ao usuário
+}
+
 // Lista de opções de redes sociais e links personalizados
 const socialOptions = [
   { value: 'github', label: 'GitHub', icon: Github },
@@ -22,7 +46,7 @@ const socialOptions = [
   { value: 'custom', label: 'Link Personalizado', icon: Link },
 ];
 
-export default function EditarPerfil({ user }: { user: any }) {
+export default function EditarPerfil({ user }: { user: User }) {
   const [profile, setProfile] = useState({
     name: user.name || '',
     username: user.username || '',
@@ -30,15 +54,12 @@ export default function EditarPerfil({ user }: { user: any }) {
     avatarUrl: '',
   });
 
-  console.log("OBJETO DO PERFIL:", profile);
-
   const [links, setLinks] = useState(() => {
     return user.links && Array.isArray(user.links) ? user.links : [];
   });
-  
 
   const [currentLink, setCurrentLink] = useState({ type: '', title: '', url: '' });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Correção de tipo
   const [profileImage, setProfileImage] = useState<string | null>(null); // Para a prévia
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
@@ -69,8 +90,9 @@ export default function EditarPerfil({ user }: { user: any }) {
 
   // Remove um link pelo índice
   const removeLink = (index: number) => {
-    setLinks(links.filter((_, i) => i !== index));
+    setLinks(links.filter((_: Link, i: number) => i !== index));
   };
+
 
   // Edita um link existente
   const editLink = (index: number) => {
@@ -100,14 +122,13 @@ export default function EditarPerfil({ user }: { user: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedData: any = {};
+    const updatedData: UpdatedData = {};
     if (profile.name !== user.name) updatedData.name = profile.name;
     if (profile.username !== user.username) updatedData.username = profile.username;
     if (profile.bio !== user.bio) updatedData.bio = profile.bio;
-    if (links.length > 0 && JSON.stringify(links) !== user.links) {
+    if (links.length > 0 && JSON.stringify(links) !== JSON.stringify(user.links)) {
       updatedData.links = JSON.stringify(links);
     }
-
     try {
       // Atualiza os dados do perfil
       await pb.collection('users').update(user.id, updatedData);
@@ -141,7 +162,7 @@ export default function EditarPerfil({ user }: { user: any }) {
                   {profileImage ? (
                     <Image src={profileImage} alt="Avatar" layout="fill" objectFit="cover" />
                   ) : (
-                    <Image src={pb.files.getUrl(user, user.avatar)} alt="Avatar" layout="fill" objectFit="cover" />
+                    <Image src={pb.files.getUrl(user, user.avatar || '')} alt="Avatar" layout="fill" objectFit="cover" />
                   )}
                 </div>
                 <Input
@@ -209,7 +230,7 @@ export default function EditarPerfil({ user }: { user: any }) {
 
             <div className="my-4">
               <h3 className="text-lg font-semibold">Links Adicionados</h3>
-              {links.map((link, index) => {
+              {links.map((link: Link, index: number) => {
                 const Icon = socialOptions.find((option) => option.value === link.type)?.icon;
 
                 return (
