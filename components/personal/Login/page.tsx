@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LogIn } from 'lucide-react';
+import Link from 'next/link'; // Importa Link para redirecionamento
 
 // Inicializa o PocketBase
 const pb = new PocketBase('https://pocketbase.flecksteel.com.br'); // Alterar URL se for necessário
@@ -87,6 +88,12 @@ export default function LoginScreen() {
           <Button variant="link" className="text-sm text-muted-foreground">
             Esqueceu sua senha?
           </Button>
+          {/* Adiciona o botão de registro */}
+          <Link href="/registro" passHref>
+            <Button variant="link" className="text-sm text-muted-foreground">
+              Não Registrado? Registre-se
+            </Button>
+          </Link>
         </CardFooter>
       </Card>
     </div>

@@ -1,46 +1,38 @@
-import { createClient } from '@supabase/supabase-js';
+'use client';
+
+import { useEffect, useState } from 'react';
+import getUserData from './UserData';
 import CartaoDigital from '@/components/personal/CartaoDigital/page';
 
-// Inicialize o cliente Supabase usando as variáveis de ambiente
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseKey);
+export default function UserPage({ params }: { params: { username: string } }) {
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export async function generateStaticParams() {
-  // Busque todos os usuários da tabela "cartoes"
-  const { data: users, error } = await supabase
-    .from('cartoes')
-    .select('username');
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getUserData(params.username);
+      setUserData(data);
+      setLoading(false);
+    }
 
-  if (error) {
-    console.error('Erro ao buscar dados:', error);
-    return [];
+    fetchData();
+  }, [params.username]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  return users.map((user: any) => ({
-    username: user.username,
-  }));
-}
-
-export default async function UserPage({ params }: { params: { username: string } }) {
-  // Busque os dados do usuário específico com base no "username"
-  const { data: user, error } = await supabase
-    .from('cartoes')
-    .select('*')
-    .eq('username', params.username)
-    .single();
-
-  if (error || !user) {
+  if (!userData) {
     return <div>User not found</div>;
   }
 
   return (
     <CartaoDigital
-      name={user.name}
-      username={user.username}
-      bio={user.bio}
-      avatarUrl={user.avatarurl}
-      links={user.links}
+      name={userData.name}
+      username={userData.username}
+      bio={userData.bio}
+      avatarUrl={userData.avatarUrl}
+      links={userData.links}
     />
   );
 }

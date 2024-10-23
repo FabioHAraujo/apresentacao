@@ -1,18 +1,17 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react';
-import LoginScreen from '@/components/personal/Login/page';   // Componente da tela de login
-import PocketBase from 'pocketbase';
+import { useUser } from '@/app/hooks/useUser'; // Ajuste o caminho se necessário
+import LoginScreen from '@/components/personal/Login/page'; // Componente da tela de login
 import EditarPerfil from '@/components/personal/EditarPerfil/page';
+import Loading from '@/components/personal/Loading/page';
 
 export default function Home() {
-  const [user, setUser] = useState(null);
-  const pb = new PocketBase('https://pocketbase.flecksteel.com.br');
+  const { user, loading } = useUser(); // Usando o hook para obter o usuário e o estado de carregamento
 
-  useEffect(() => {
-    const authData = pb.authStore.isValid ? pb.authStore.model : null;
-    setUser(authData);  // Define o usuário logado se estiver autenticado
-  }, [pb.authStore.isValid]);
+  if (loading) {
+    // Renderiza o componente de loading enquanto verifica a autenticação
+    return <Loading />;
+  }
 
   if (!user) {
     // Renderiza a tela de login se não houver um usuário autenticado
