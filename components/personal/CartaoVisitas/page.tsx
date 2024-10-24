@@ -37,7 +37,7 @@ export default function CartaoVisitas({ name, username, bio, avatarUrl }: Cartao
           {/* Lado direito com QR Code */}
           <div className="w-1/3 bg-gray-100 flex items-center justify-center">
             <QRCodeSVG
-              value={`http://localhost:3000/${username}`}
+              value={`http://apresentacao.flecksteel.com.br/${username}`}
               size={200}
               bgColor="#FFFFFF"
               fgColor="#000000"

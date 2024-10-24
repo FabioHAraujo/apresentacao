@@ -162,7 +162,7 @@ export default function CartaoDigital({
 
             <div className="flex justify-center items-center">
               <QRCodeSVG
-                value={`http://localhost:3000/${username}`}
+                value={`http://apresentacao.flecksteel.com.br/${username}`}
                 size={256}
                 bgColor="#FFFFFF"
                 fgColor="#000000"
