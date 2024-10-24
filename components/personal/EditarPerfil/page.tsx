@@ -80,10 +80,18 @@ export default function EditarPerfil({ user }: { user: User }) {
     setCurrentLink({ ...currentLink, type: value });
   };
 
+  const formatUrl = (url: string) => {
+    if (!/^https?:\/\//i.test(url)) {
+      return `https://${url}`;
+    }
+    return url;
+  };
+
   // Adiciona um novo link ao array de links
   const addLink = () => {
     if (currentLink.type && currentLink.title && currentLink.url) {
-      setLinks([...links, currentLink]);
+      const formattedUrl = formatUrl(currentLink.url); // Formata o URL
+      setLinks([...links, { ...currentLink, url: formattedUrl }]); // Atualiza o link com o URL formatado
       setCurrentLink({ type: '', title: '', url: '' });
     }
   };
@@ -147,6 +155,7 @@ export default function EditarPerfil({ user }: { user: User }) {
       alert('Ocorreu um erro ao atualizar o perfil.');
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">

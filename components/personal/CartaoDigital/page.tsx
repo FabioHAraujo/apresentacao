@@ -5,8 +5,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
-import { Github, Instagram, Linkedin, Twitter, Mail, Link } from 'lucide-react';
+import { Github, Instagram, Linkedin, Twitter, Mail, Link, CopyIcon } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import './estilos.css';
 import CartaoVisitas from '../CartaoVisitas/page';
 
@@ -18,25 +30,24 @@ interface CartaoDigitalProps {
   links: Array<{
     title: string;
     url: string;
-    icon: keyof typeof iconMap;
+    type: string;  // Agora estamos usando 'type' como no banco de dados
   }>;
 }
 
+// Mapeamento dos ícones
 const iconMap = {
-  Github,
-  Twitter,
-  Linkedin,
-  Instagram,
-  Mail,
-  Link,
+  github: Github,
+  twitter: Twitter,
+  linkedin: Linkedin,
+  instagram: Instagram,
+  email: Mail,
+  custom: Link,
 };
 
-const formatIconKey = (iconKey: string | undefined) => {
-  if (!iconKey) {
-    console.warn('Icon key is undefined');
-    return '';
-  }
-  return iconKey.charAt(0).toUpperCase() + iconKey.slice(1);
+// Função para garantir que o 'type' esteja no formato correto para o mapeamento
+const getIconComponent = (type: string) => {
+  const lowerType = type.toLowerCase(); // Converte para minúsculas para garantir compatibilidade
+  return iconMap[lowerType as keyof typeof iconMap] || iconMap.custom;
 };
 
 export default function CartaoDigital({
@@ -46,8 +57,17 @@ export default function CartaoDigital({
   avatarUrl,
   links,
 }: CartaoDigitalProps) {
-  const qrRef = useRef<SVGSVGElement | null>(null); // Inicialize corretamente o useRef
+  const qrRef = useRef<SVGSVGElement | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  console.log("Link Avatar:", avatarUrl)
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('E-mail copiado para a área de transferência!');
+    }).catch(err => {
+      console.error('Falha ao copiar e-mail. Relate isto para: informatica@flecksteel.com.br: ', err);
+    });
+  };
 
   return (
     <div className="animatedBackground">
@@ -66,13 +86,60 @@ export default function CartaoDigital({
           </CardHeader>
           <CardContent className="grid gap-4">
             {links.map((link, index) => {
-              const formattedIconKey = formatIconKey(link.icon);
-              const Icon = iconMap[formattedIconKey as keyof typeof iconMap]; // Corrigido o tipo
+              const Icon = getIconComponent(link.type);  // Usa a função para obter o ícone correto
+              console.log("Ícone:", Icon, "Tipo:", link.type);
+
+              if (link.type === 'email') {  // Verifica se o tipo é 'email'
+                return (
+                  <Dialog key={index}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full" variant="outline">
+                        {Icon && <Icon className="mr-2 h-4 w-4" />}
+                        {link.title}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Endereço de E-mail</DialogTitle>
+                        <DialogDescription>
+                          Copie o e-mail para a área de transferência para nos contatar.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex items-center space-x-2">
+                        <div className="grid flex-1 gap-2">
+                          <Label htmlFor="email" className="sr-only">Email</Label>
+                          <Input
+                            id="email"
+                            defaultValue={link.url}
+                            readOnly
+                          />
+                        </div>
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          className="px-3"
+                          onClick={() => copyToClipboard(link.url)}
+                        >
+                          <span className="sr-only">Copy</span>
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <DialogFooter className="sm:justify-start">
+                        <DialogClose asChild>
+                          <Button type="button" variant="secondary">
+                            Fechar
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                );
+              }
 
               return (
                 <Button key={index} className="w-full" variant="outline" asChild>
                   <a href={link.url} target="_blank" rel="noopener noreferrer">
-                    {Icon ? <Icon className="mr-2 h-4 w-4" /> : null}
+                    {Icon && <Icon className="mr-2 h-4 w-4" />}
                     {link.title}
                   </a>
                 </Button>
@@ -101,7 +168,7 @@ export default function CartaoDigital({
                 fgColor="#000000"
                 level="L"
                 includeMargin={false}
-                ref={qrRef} // Referência correta do QR Code
+                ref={qrRef}
               />
             </div>
           </CardContent>

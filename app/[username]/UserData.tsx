@@ -24,7 +24,7 @@ async function fetchUserData(username: string): Promise<UserData | null> {
     name: user.name,
     username: user.username,
     bio: user.bio,
-    avatarUrl: `https://pocketbase.flecksteel.com.br/api/files/_pb_users_auth_/n70kjrzsehbote1/${user.avatar}`, // Ajuste se necessário
+    avatarUrl: `https://pocketbase.flecksteel.com.br/api/files/_pb_users_auth_/${user.id}/${user.avatar}`, // Substitui o ID fixo por user.id
     links: user.links,
   };
 }
