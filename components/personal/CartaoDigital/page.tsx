@@ -120,7 +120,7 @@ export default function CartaoDigital({
                           className="px-3"
                           onClick={() => copyToClipboard(link.url)}
                         >
-                          <span className="sr-only">Copy</span>
+                          <span className="sr-only">Copiar</span>
                           <CopyIcon className="h-4 w-4" />
                         </Button>
                       </div>
@@ -146,8 +146,50 @@ export default function CartaoDigital({
               );
             })}
 
-            <Button className="w-full">Nosso Site</Button>
-            <Button className="w-full">Nosso Contato</Button>
+            <Button className="w-full">
+              <a href="https://grupopliniofleck.com.br" target="_blank">Nosso Site</a>
+            </Button>
+            <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full">
+                        Nosso Contato
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Endereço de E-mail</DialogTitle>
+                        <DialogDescription>
+                          Copie o e-mail para a área de transferência para nos contatar.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="flex items-center space-x-2">
+                        <div className="grid flex-1 gap-2">
+                          <Label htmlFor="email" className="sr-only">Email</Label>
+                          <Input
+                            id="email"
+                            defaultValue="compras@flecksteel.com.br"
+                            readOnly
+                          />
+                        </div>
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          className="px-3"
+                          onClick={() => copyToClipboard("compras@flecksteel.com.br")}
+                        >
+                          <span className="sr-only">Copiar</span>
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <DialogFooter className="sm:justify-start">
+                        <DialogClose asChild>
+                          <Button type="button" variant="secondary">
+                            Fechar
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
 
             <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <DrawerTrigger asChild>
