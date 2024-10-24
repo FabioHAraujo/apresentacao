@@ -6,11 +6,21 @@ import PocketBase from 'pocketbase';
 
 const pb = new PocketBase('https://pocketbase.flecksteel.com.br');
 
+interface Link {
+  type: string;
+  title: string;
+  url: string;
+}
+
 interface User {
-  // Adicione as propriedades esperadas do usuário aqui
   id: string;
   email: string;
   name: string;
+  username: string; // Adicione estas propriedades
+  bio: string;
+  avatar?: string;
+  avatarUrl?: string;
+  links: Link[]; // Adicione esta propriedade
 }
 
 export const useUser = () => {
