@@ -23,7 +23,7 @@ export default function CartaoVisitas({ name, username, bio, avatarUrl }: Cartao
           <div className="flex flex-col justify-center p-8 w-2/3">
             <div className="flex items-center space-x-6">
               <Avatar className="w-32 h-32">
-                <AvatarImage src={avatarUrl} alt={`${name}'s profile picture`} />
+                <AvatarImage src={avatarUrl} alt={`${name}'s profile picture`} className="object-cover"/>
                 <AvatarFallback className="text-4xl">{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
               </Avatar>
               <div>
