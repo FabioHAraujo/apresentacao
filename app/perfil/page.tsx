@@ -1,6 +1,7 @@
-// /app/perfil/page.tsx
+'use client';
+
 import EditarPerfil from "@/components/personal/EditarPerfil/page";
-import { useUser } from "@/app/hooks/useUser"; // Ajuste o caminho se necessário
+import { useUser } from "@/app/hooks/useUser";
 import Loading from '@/components/personal/Loading/page';
 
 export default function PerfilPage() {
@@ -11,7 +12,6 @@ export default function PerfilPage() {
   }
 
   if (!user) {
-    // Aqui você pode redirecionar ou renderizar uma mensagem
     return <div>Acesso negado. Você não está logado.</div>;
   }
 

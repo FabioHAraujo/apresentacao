@@ -1,12 +1,27 @@
-'use client';
+"use client";
 
-import { useRef, useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
-import { Github, Instagram, Linkedin, Twitter, Mail, Link, CopyIcon } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useRef, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import {
+  Github,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Mail,
+  Link,
+  CopyIcon,
+  Phone,
+} from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
   DialogClose,
@@ -16,38 +31,45 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import './estilos.css';
-import CartaoVisitas from '../CartaoVisitas/page';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import "./estilos.css";
+import CartaoVisitas from "../CartaoVisitas/page";
+
+interface LinkType {
+  title: string;
+  url: string;
+  type: string;
+}
 
 interface CartaoDigitalProps {
   name: string;
   username: string;
   bio: string;
   avatarUrl: string;
-  links: Array<{
-    title: string;
-    url: string;
-    type: string;  // Agora estamos usando 'type' como no banco de dados
-  }>;
+  links: LinkType[];
 }
 
-// Mapeamento dos ícones
-const iconMap = {
+const iconMap: Record<string, React.ElementType> = {
   github: Github,
   twitter: Twitter,
   linkedin: Linkedin,
   instagram: Instagram,
   email: Mail,
   custom: Link,
+  phone: Phone,
 };
 
-// Função para garantir que o 'type' esteja no formato correto para o mapeamento
 const getIconComponent = (type: string) => {
-  const lowerType = type.toLowerCase(); // Converte para minúsculas para garantir compatibilidade
-  return iconMap[lowerType as keyof typeof iconMap] || iconMap.custom;
+  return iconMap[type.toLowerCase()] || iconMap.custom;
+};
+
+const formatPhoneNumber = (phone: string) => {
+  const match = phone.match(/^\d{2}(\d)(\d{4})(\d{4})$/);
+  return match
+    ? `(${match[0].slice(0, 2)}) ${match[1]} ${match[2]}-${match[3]}`
+    : phone;
 };
 
 export default function CartaoDigital({
@@ -59,14 +81,12 @@ export default function CartaoDigital({
 }: CartaoDigitalProps) {
   const qrRef = useRef<SVGSVGElement | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  console.log("Link Avatar:", avatarUrl)
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('E-mail copiado para a área de transferência!');
-    }).catch(err => {
-      console.error('Falha ao copiar e-mail. Relate isto para: informatica@flecksteel.com.br: ', err);
-    });
+  const copyToClipboard = (text: string, tipo: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => alert(`${tipo} copiado para a área de transferência!`))
+      .catch((err) => console.error("Erro ao copiar:", err));
   };
 
   return (
@@ -75,8 +95,17 @@ export default function CartaoDigital({
         <Card className="w-full max-w-md bg-white/80 backdrop-blur-md">
           <CardHeader className="items-center text-center">
             <Avatar className="w-24 h-24">
-              <AvatarImage src={avatarUrl} alt={`${name}'s profile picture`} className="object-cover" />
-              <AvatarFallback>{name.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
+              <AvatarImage
+                src={avatarUrl}
+                alt={`${name}'s profile picture`}
+                className="object-cover"
+              />
+              <AvatarFallback>
+                {name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
             </Avatar>
             <CardTitle className="mt-4 text-2xl font-bold">{name}</CardTitle>
             <CardDescription className="mt-1 text-sm font-medium text-muted-foreground">
@@ -86,39 +115,52 @@ export default function CartaoDigital({
           </CardHeader>
           <CardContent className="grid gap-4">
             {links.map((link, index) => {
-              const Icon = getIconComponent(link.type);  // Usa a função para obter o ícone correto
-              console.log("Ícone:", Icon, "Tipo:", link.type);
+              const Icon = getIconComponent(link.type);
 
-              if (link.type === 'email') {  // Verifica se o tipo é 'email'
+              if (link.type === "email" || link.type === "phone") {
+                const formattedValue =
+                  link.type === "phone"
+                    ? formatPhoneNumber(link.url)
+                    : link.url;
+                const copyValue =
+                  link.type === "phone" ? `+55${link.url}` : link.url;
                 return (
                   <Dialog key={index}>
                     <DialogTrigger asChild>
                       <Button className="w-full" variant="outline">
-                        {Icon && <Icon className="mr-2 h-4 w-4" />}
+                        <Icon className="mr-2 h-4 w-4" />
                         {link.title}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Endereço de E-mail</DialogTitle>
+                        <DialogTitle>
+                          {link.type === "email"
+                            ? "Endereço de E-mail"
+                            : "Número de Telefone"}
+                        </DialogTitle>
                         <DialogDescription>
-                          Copie o e-mail para a área de transferência para nos contatar.
+                          Copie{" "}
+                          {link.type === "email" ? "o e-mail" : "o número"} para
+                          a área de transferência.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="flex items-center space-x-2">
                         <div className="grid flex-1 gap-2">
-                          <Label htmlFor="email" className="sr-only">Email</Label>
+                          <Label htmlFor={link.type} className="sr-only">
+                            {link.type}
+                          </Label>
                           <Input
-                            id="email"
-                            defaultValue={link.url}
+                            id={link.type}
+                            defaultValue={formattedValue}
                             readOnly
                           />
                         </div>
-                        <Button 
-                          type="button" 
-                          size="sm" 
+                        <Button
+                          type="button"
+                          size="sm"
                           className="px-3"
-                          onClick={() => copyToClipboard(link.url)}
+                          onClick={() => copyToClipboard(copyValue, link.title)}
                         >
                           <span className="sr-only">Copiar</span>
                           <CopyIcon className="h-4 w-4" />
@@ -135,73 +177,43 @@ export default function CartaoDigital({
                   </Dialog>
                 );
               }
-
               return (
-                <Button key={index} className="w-full" variant="outline" asChild>
+                <Button
+                  key={index}
+                  className="w-full"
+                  variant="outline"
+                  asChild
+                >
                   <a href={link.url} target="_blank" rel="noopener noreferrer">
-                    {Icon && <Icon className="mr-2 h-4 w-4" />}
+                    <Icon className="mr-2 h-4 w-4" />
                     {link.title}
                   </a>
                 </Button>
               );
             })}
-
-            <Button className="w-full">
-              <a href="https://grupopliniofleck.com.br" target="_blank">Nosso Site</a>
+            <Button
+              className="w-full"
+              onClick={() =>
+                window.open("https://grupopliniofleck.com.br", "_blank")
+              }
+            >
+              Nosso Site
             </Button>
-            <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="w-full">
-                        Nosso Contato
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Endereço de E-mail</DialogTitle>
-                        <DialogDescription>
-                          Copie o e-mail para a área de transferência para nos contatar.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex items-center space-x-2">
-                        <div className="grid flex-1 gap-2">
-                          <Label htmlFor="email" className="sr-only">Email</Label>
-                          <Input
-                            id="email"
-                            defaultValue="compras@flecksteel.com.br"
-                            readOnly
-                          />
-                        </div>
-                        <Button 
-                          type="button" 
-                          size="sm" 
-                          className="px-3"
-                          onClick={() => copyToClipboard("compras@flecksteel.com.br")}
-                        >
-                          <span className="sr-only">Copiar</span>
-                          <CopyIcon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <DialogFooter className="sm:justify-start">
-                        <DialogClose asChild>
-                          <Button type="button" variant="secondary">
-                            Fechar
-                          </Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-
             <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <DrawerTrigger asChild>
                 <Button className="w-full">Visualizar Cartão de Visitas</Button>
               </DrawerTrigger>
               <DrawerContent className="h-[60vh]">
                 <div className="mx-auto w-full">
-                  <CartaoVisitas name={name} username={username} bio={bio} avatarUrl={avatarUrl} />
+                  <CartaoVisitas
+                    name={name}
+                    username={username}
+                    bio={bio}
+                    avatarUrl={avatarUrl}
+                  />
                 </div>
               </DrawerContent>
             </Drawer>
-
             <div className="flex justify-center items-center">
               <QRCodeSVG
                 value={`http://apresentacao.flecksteel.com.br/${username}`}
